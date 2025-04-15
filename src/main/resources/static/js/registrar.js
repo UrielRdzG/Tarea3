@@ -25,6 +25,6 @@ async function registrarUsuario() {
         },
         body: JSON.stringify(datos)
     });
-    alert("Cuenta creada exitosamente")
+    alert("Cuenta creada exitosamente"  )
 }
 

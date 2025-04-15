@@ -2,6 +2,7 @@ package com.UrielRdzG.tarea3.controllers;
 
 import com.UrielRdzG.tarea3.dao.UsuarioDao;
 import com.UrielRdzG.tarea3.models.Usuario;
+import com.UrielRdzG.tarea3.utils.JWTUtil;
 import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,8 @@ public class UsuarioController{
 
     @Autowired
     private UsuarioDao usuarioDao;
+    @Autowired
+    private JWTUtil jwtUtil;
 
     @RequestMapping(value = "api/usuarios/{id}", method = RequestMethod.GET)
     public Usuario getUsuario(@PathVariable Long id) {
@@ -28,8 +31,15 @@ public class UsuarioController{
     }
 
     @RequestMapping(value = "api/usuarios",method = RequestMethod.GET)
-    public List<Usuario> getUsuarios() {
+    public List<Usuario> getUsuarios(@RequestHeader(value = "Authorization") String token) {
+        if (!validarToken(token)) {return null;}
         return usuarioDao.getUsuarios();
+    }
+
+    private boolean validarToken(String token) {
+        String usuarioId = jwtUtil.getKey(token);
+
+        return usuarioId != null;
     }
 
     @RequestMapping(value = "api/usuarios",method = RequestMethod.POST)
@@ -51,17 +61,11 @@ public class UsuarioController{
     }
 
     @RequestMapping(value = "api/usuarios/{id}", method = RequestMethod.DELETE)
-    public void eliminarUsuario(@PathVariable Long id) {
+    public void eliminarUsuario(@RequestHeader(value = "Authorization") String token,
+                                @PathVariable Long id) {
+        if (!validarToken(token)) {return ;}
+
         usuarioDao.eliminar(id);
     }
 
-    @RequestMapping(value = "usuario3")
-    public Usuario buscarUsuario() {
-        Usuario usuario = new Usuario();
-        usuario.setNombre("Uriel");
-        usuario.setApellido("Rodriguez");
-        usuario.setEmail("urielrdzg@gmail.com");
-        usuario.setTelefono("5500112233");
-        return usuario;
-    }
 }
